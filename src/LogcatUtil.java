@@ -11,7 +11,10 @@ public class LogcatUtil {
     private String path = "";
     private long renameInterval = 1 * 60 * 1000;
 
-    public LogcatUtil() {
+    public LogcatUtil(long minutes) {
+
+        renameInterval = minutes * 60 * 1000;
+
         path = getPath();
         fileName = getFileName();
 
