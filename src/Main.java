@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Main {
     public static void main(String[] args) {
@@ -27,7 +29,23 @@ public class Main {
             System.out.println("******        OK, I will splite per " + minutes + " minutes;");
             System.out.println("******        And I will start grab log...");
             LogcatUtil util = new LogcatUtil(minutes);
-            util.startLogcat();
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    System.out.println("******        " + util.getCurrentTime());
+                    System.out.println("******        I will stop command logcat and execute a new one...");
+                    System.out.println("******        .................");
+                    util.stopLogcat();
+                    Thread t = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            util.startLogcat();
+                        }
+                    });
+                    t.start();
+                }
+            }, 0,   10 * 60 * 1000);
         }catch (Exception e) {
             System.out.println("******        Sorry, I has an exception...");
             System.out.println("******        msg: " + e.getClass().getSimpleName());

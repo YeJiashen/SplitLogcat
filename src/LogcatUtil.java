@@ -10,6 +10,8 @@ public class LogcatUtil {
     private String fileName = "";
     private String path = "";
     private long renameInterval = 1 * 60 * 1000;
+    private boolean cmdOpen = true;
+    private Process p;
 
     public LogcatUtil(long minutes) {
 
@@ -30,10 +32,12 @@ public class LogcatUtil {
     public void startLogcat() {
         BufferedReader br = null;
         try {
-            Process p = Runtime.getRuntime().exec("adb logcat -v time");
-            br = new BufferedReader(new InputStreamReader(p.getInputStream(),"GBK"));
+            cmdOpen = true;
+            p = Runtime.getRuntime().exec("adb logcat -v time");
+            Process pTemp = p;
+            br = new BufferedReader(new InputStreamReader(pTemp.getInputStream(),"GBK"));
             String line = null;
-            while ((line = br.readLine()) != null) {
+            while ((line = br.readLine()) != null && cmdOpen) {
 //                System.out.println(line);
                 FileUtil.writeContent(path, fileName, line);
             }
@@ -50,6 +54,13 @@ public class LogcatUtil {
         }
     }
 
+    public void stopLogcat() {
+        cmdOpen = false;
+        if (p != null) {
+            p.destroy();
+        }
+    }
+
     private String getPath() {
         String p = FileUtil.getCurrentDir() + File.separator;
         return p;
@@ -60,7 +71,7 @@ public class LogcatUtil {
         return n;
     }
 
-    private String getCurrentTime() {
+    public String getCurrentTime() {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HHmm");//设置日期格式
         return df.format(new Date());
     }
